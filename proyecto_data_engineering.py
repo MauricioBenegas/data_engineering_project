@@ -20,7 +20,12 @@ from pathlib import Path
 import psycopg2
 import requests
 import json
+
+from email import message
+import smtplib
+
 from airflow import DAG
+from airflow.models import DAG, Variable
 import sqlalchemy
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy import create_engine
@@ -227,6 +232,23 @@ except Exception as e:
     #print('Anything else that you feel is useful')
     conn.rollback()
 
+
+#Envio de alertas
+def enviar(ds_hour):
+    try:
+        x=smtplib.SMTP('smtp.gmail.com',587)
+        x.starttls()
+        x.login('mauricioanalyst@gmail.com','ofexhamywxyhskiq')
+        subject='Dag corrio correctamente Mau'
+        body_text='Excelente trabajo' #Mensaje a enviar
+        message='Subject: {}\n\n{}'.format(subject,body_text)
+        x.sendmail('mauricioanalyst@gmail.com','mauricioabovando2@gmail.com',message)
+        print('Exito')
+    except Exception as exception:
+        print(exception)
+        print('Failure')
+
+
 #TAREAS DEL DAG
 
 #1.EXTRACCION
@@ -250,6 +272,13 @@ task_3= PythonOperator (
     op_args=["{{ ds }} {{ execution_date.hour }}"],
     dag=Automatition,
 )
+#Envio email
+task_4= PythonOperator (
+        task_id='envio_email',
+        python_callable=enviar,
+        op_args=["{{ ds }} {{ execution_date.hour }}"],
+        dag=Automatition,
+)
 
 #definicion orden tareas
-task_1 >> task_2 >> task_3
+task_1 >> task_2 >> task_3 >> task_4
