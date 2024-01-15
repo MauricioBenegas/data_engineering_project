@@ -1,0 +1,14 @@
+SQL CODE
+create table tc_argetina_vededor_1
+(id int not null --Id Incremental
+, updated_date date --Col Temporal
+, t_cambio_vendedor decimal
+);
+
+
+create table inflasion_argetina
+(id int not null --Id Incremental
+, updated_date date --Col Temporal
+, ipc decimal
+, inflasion decimal
+);
